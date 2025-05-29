@@ -14,6 +14,7 @@
 
 
 static volatile uint32_t g_door_open_tick = 0;
+static volatile uint32_t g_last_light_button_tick = 0;
 static volatile uint8_t g_door_open = 0;
 static volatile uint32_t g_last_button_tick = 0;
 
@@ -22,8 +23,8 @@ void room_control_app_init(void)
     gpio_write_pin(EXTERNAL_LED_ONOFF_PORT, EXTERNAL_LED_ONOFF_PIN, GPIO_PIN_RESET);
     g_door_open = 0;
     g_door_open_tick = 0;
-
     tim3_ch1_pwm_set_duty_cycle(20); // Lámpara al 20%
+    uart2_send_string("\r\nControlador de Sala v1.0 \nDesarrollador: [Samuel Elias Gómez Muñoz]\n Estado inicial: - Lámpara: 20% \n- Puerta: Cerrada");
 }
 
 void room_control_on_button_press(void)
@@ -44,22 +45,22 @@ void room_control_on_uart_receive(char cmd)
     switch (cmd) {
         case '1':
             tim3_ch1_pwm_set_duty_cycle(100);
-            uart2_send_string("Lámpara: brillo al 100%.\r\n");
+            uart2_send_string("Ajustar brillo Lámpara: 100%.\r\n");
             break;
 
         case '2':
             tim3_ch1_pwm_set_duty_cycle(70);
-            uart2_send_string("Lámpara: brillo al 70%.\r\n");
+            uart2_send_string("Ajustar brillo Lámpara: 70%.\r\n");
             break;
 
         case '3':
             tim3_ch1_pwm_set_duty_cycle(50);
-            uart2_send_string("Lámpara: brillo al 50%.\r\n");
+            uart2_send_string("Ajustar brillo Lámpara: 50%.\r\n");
             break;
 
         case '4':
             tim3_ch1_pwm_set_duty_cycle(20);
-            uart2_send_string("Lámpara: brillo al 20%.\r\n");
+            uart2_send_string("Ajustar brillo Lámpara: 20%.\r\n");
             break;
 
         case '0':
@@ -85,6 +86,13 @@ void room_control_on_uart_receive(char cmd)
         default:
             uart2_send_string("Comando desconocido.\r\n");
             break;
+        case '?':
+        uart2_send_string("Comandos disponibles:\n'1'-'4': Ajustar brillo lámpara (100%, 70%, 50%, 20%)\n'0': Apagar lámpara\n'o'   : Abrir puerta\n'c': Cerrar puerta\n's': Estado del sistema\n'?': Ayuda");
+        break;
+        case 's':
+        uart2_send_string("Estado:\n- Lámpara: 70%\n- Puerta: Abierta");
+        break;
+        
     }
 }
 
@@ -95,4 +103,6 @@ void room_control_tick(void)
         uart2_send_string("Puerta cerrada automáticamente tras 3 segundos.\r\n");
         g_door_open = 0;
     }
+    
+    
 }

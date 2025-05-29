@@ -53,7 +53,6 @@ int main(void)
     room_control_app_init();
 
     // Mensaje de bienvenida o estado inicial (puede estar en room_control_app_init o aquí)
-    uart2_send_string("\r\nSistema Inicializado. Esperando eventos...\r\n");
     while (1) {
         heartbeat_led_toggle();
     }
